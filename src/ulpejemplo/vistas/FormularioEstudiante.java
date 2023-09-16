@@ -5,6 +5,13 @@
  */
 package ulpejemplo.vistas;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import javax.swing.JOptionPane;
+import ulpejemplo.accesoDatos.EstudianteData;
+import ulpejemplo.entidades.Estudiante;
+
 /**
  *
  * @author marti
@@ -64,14 +71,39 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
         jLfechaNac.setText("Fecha de Nacimiento: ");
 
         jBbuscar.setText("Buscar");
+        jBbuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBbuscarActionPerformed(evt);
+            }
+        });
 
         jBnuevo.setText("Nuevo");
+        jBnuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBnuevoActionPerformed(evt);
+            }
+        });
 
         jBeliminar.setText("Eliminar");
+        jBeliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBeliminarActionPerformed(evt);
+            }
+        });
 
         jBguardar.setText("Guardar");
+        jBguardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBguardarActionPerformed(evt);
+            }
+        });
 
         jBsalir.setText("Salir");
+        jBsalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBsalirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -164,6 +196,162 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jBbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBbuscarActionPerformed
+        //deshabilitar "guardar" si dni devuelve un resultado válido
+        try
+        {
+            int dni = Integer.parseInt(jTFdni.getText());
+            //instancio un estudiante data para acceder a sus metodos
+            EstudianteData estuData = new EstudianteData();
+            //instancio un estudiante para recibir datos
+            Estudiante estu = new Estudiante();
+            estu = estuData.buscarEstudiantePorDNI(dni);
+            //si el método me devuelve un estudiante null, significa que no existe ese estudiante
+            if (estu == null)
+            {
+                //borramos el dni ingresado y nos vamos
+                jTFdni.setText("");
+                return;
+            }
+            else
+            //¿deshabilito "guardar" para evitar duplicados?
+            //cargo datos en formulario
+            {
+                jTFapellido.setText(estu.getApellido());
+                jTFnombre.setText(estu.getNombre());
+                if (estu.isActivo())
+                {
+                    jRBactivo.setSelected(true);
+                }
+                else
+                {
+                    jRBactivo.setSelected(false);
+                }
+                //localDate : estu.getFechaNac()
+                //transforma localDate a instant: atStartOfDay(ZoneId.systemDefault()).toInstant()
+                //Date.from(Instant) trnasforma instant a date
+
+                jDCHfechaNac.setDate(Date.from(estu.getFechaNac().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+                //apagar boton para guardar, porque ese alumno ya existe
+                jBguardar.setEnabled(false);
+            }
+            
+        }
+        //An empty TextField, or doubles or floats would result in a NumberFormatException
+        catch(NumberFormatException nfe)
+        {
+            JOptionPane.showMessageDialog(this, "Ingrese un número valido");
+            jTFdni.setText("");
+            return;
+        }
+    }//GEN-LAST:event_jBbuscarActionPerformed
+
+    private void jBeliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBeliminarActionPerformed
+        // TODO add your handling code here:
+        //¿no debería ser el método de borrado por DNI?
+        //capturar dato de id del estudiante
+        //si estu es null (o sea, si no se instancio o si se devolvio null
+        try
+        {
+            int dni = Integer.parseInt(jTFdni.getText());
+            //instancio un estudiante data para acceder a sus metodos
+            EstudianteData estuData = new EstudianteData();
+            //instancio un estudiante para recibir datos
+            Estudiante estu = new Estudiante();
+            estu = estuData.buscarEstudiantePorDNI(dni);
+            //si el método me devuelve un estudiante null, significa que no existe ese estudiante o que no está activo
+            if (estu == null)
+            {
+                //borramos el dni ingresado y nos vamos
+                jTFdni.setText("");
+                return;
+            }
+            else
+            //¿deshabilito "guardar" para evitar duplicados?
+            //traigo dato de id de estudiante para pasarselo al método eliminar estudiante
+            {
+                int id = estu.getId_estudiante();
+                estuData.eliminarEstudiante(id);
+                //limpiar campos
+                limpiarCampos();
+
+                //apagar boton para guardar, porque ese alumno ya existe
+                jBguardar.setEnabled(false);
+            }
+            
+        }
+        //An empty TextField, or doubles or floats would result in a NumberFormatException
+        catch(NumberFormatException nfe)
+        {
+            JOptionPane.showMessageDialog(this, "Ingrese un número valido");
+            jTFdni.setText("");
+            return;
+        }
+    }//GEN-LAST:event_jBeliminarActionPerformed
+
+    private void jBnuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBnuevoActionPerformed
+        // TODO add your handling code here:
+        //limpia campos
+        limpiarCampos();
+        //habilita guardar
+        jBguardar.setEnabled(true);
+        //hace editables todos los campos?
+        
+    }//GEN-LAST:event_jBnuevoActionPerformed
+
+    private void jBguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBguardarActionPerformed
+        // TODO add your handling code here:
+        //capturar todos los campos y generar un estudiante con el constructor SIN id
+        try
+        {
+            //instancio un estudiante data para acceder a sus metodos
+            EstudianteData estuData = new EstudianteData();
+            
+            int dni = Integer.parseInt(jTFdni.getText());
+            String apellido = jTFapellido.getText();
+            String nombre = jTFnombre.getText();
+            LocalDate fechaNac = jDCHfechaNac.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            Boolean activo = false;
+            if (jRBactivo.isSelected())
+            {
+                activo = true;
+            }
+            //instancio un estudiante a partir de datos
+            Estudiante estu = new Estudiante(dni, apellido, nombre, fechaNac, activo);
+            // se lo paso al método guardar estudiante
+            estuData.guardarEstudiante(estu);
+            
+            limpiarCampos();
+            
+        }
+        //An empty TextField, or doubles or floats would result in a NumberFormatException
+        catch(NumberFormatException nfe)
+        {
+            JOptionPane.showMessageDialog(this, "Ingrese un dato valido");
+            return;
+        }
+        
+    }//GEN-LAST:event_jBguardarActionPerformed
+
+    private void jBsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBsalirActionPerformed
+        // TODO add your handling code here:
+        int choice = JOptionPane.showConfirmDialog(this, "¿Salir de este formulario?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) 
+        {
+            // con dispose salimos del internal frame. Para salir x completo: "System.exit(0);"
+            this.dispose();
+        }
+    }//GEN-LAST:event_jBsalirActionPerformed
+
+    private void limpiarCampos()
+    {
+        jTFdni.setText("");
+        jTFapellido.setText("");
+        jTFnombre.setText("");
+        jRBactivo.setSelected(false);
+        jDCHfechaNac.setDate(null);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBbuscar;
