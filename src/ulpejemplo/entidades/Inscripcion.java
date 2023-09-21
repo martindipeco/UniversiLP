@@ -25,7 +25,13 @@ public class Inscripcion {
     }
 
     public Inscripcion(float nota, Estudiante estudiante, Materia materia) {
-        this.nota = nota;
+        this.nota = nota; //podría ser cero por defecto
+        this.estudiante = estudiante;
+        this.materia = materia;
+    }
+    
+    public Inscripcion(Estudiante estudiante, Materia materia) {
+        nota = 0.0f; //cero por defecto
         this.estudiante = estudiante;
         this.materia = materia;
     }

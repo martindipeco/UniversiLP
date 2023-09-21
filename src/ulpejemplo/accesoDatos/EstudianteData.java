@@ -35,7 +35,8 @@ public class EstudianteData {
     {
         //agrego una fila a estudiante
         String sql = "INSERT INTO estudiante (dni, apellido, nombre, fechaNac, estado)VALUES (?, ?, ?, ?, ?)";
-
+        
+        //¿cómo manejo la lógica para evitar generar duplicados?
         try 
         {
             //pido que devuelva la clave primaria generada
@@ -54,13 +55,13 @@ public class EstudianteData {
             {
                 // 1 es el numero de columna
                 estudiante.setId_estudiante(rs.getInt(1));
-                JOptionPane.showMessageDialog(null, "Alumno agregado existosamente");
+                JOptionPane.showMessageDialog(null, "Estudiante agregado existosamente");
             }
             //cierro el objeto para liberar recursos
             ps.close();
         } 
         catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "No se pudo acceder a la tabla alumnos");
+            JOptionPane.showMessageDialog(null, "No se pudo acceder a la tabla alumnos. " + ex.getMessage());
         }
     }
     
@@ -109,7 +110,7 @@ public class EstudianteData {
             }
         } 
         catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "No se pudo acceder a la tabla estudiante");
+            JOptionPane.showMessageDialog(null, "No se pudo acceder a la tabla estudiante " + ex.getMessage());
         }
         
         // deberia agregar ps.close() ??

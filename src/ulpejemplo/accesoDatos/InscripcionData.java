@@ -132,7 +132,7 @@ public class InscripcionData {
         FROM inscripción JOIN materia ON (inscripción.idMateria=materia.idMateria)
         Para poder proyectar en la cláusula SELECT los datos de las materias, pero sólo de aquellas en las que está inscripto un determinado alumno, y sabemos que en la tabla inscripción solo tenemos el id del alumno y el id de la materia en el que éste está inscripto, por lo tanto si necesito completar la información con el resto de los datos de la materia que se corresponden con ese id, debo reunir (JOIN) las tablas INSCRIPCION y MATERIA, a través de clave primaria de Materia con la clave foránea idMateria en Inscripcion; es lo que indicamos en la cláusula ON(inscripción.idMateria=materia.idMateria).
         */
-        String sql = "SELECT inscripcion.idMateria, nombre, año FROM inscripcion JOIN materia ON (inscripcion.idMateria = materia.id_materia) WHERE inscripcion.idEstudiante = ?";
+        String sql = "SELECT inscripcion.idMateria, nombre, año FROM inscripcion JOIN materia ON (inscripcion.idMateria = materia.id_materia) WHERE inscripcion.idEstudiante = ? AND materia.estado = true";
         
         //String sql2 = "SELECT inscripcion.idMateria, nombre, año FROM inscripcion, " + " materia WHERE inscripcion.idMateria = id_materia\n" + "AND inscripcion.idEstudiante = ?;";
         
@@ -153,7 +153,7 @@ public class InscripcionData {
                 materia.setAnio(rs.getInt("año"));
                 
                 materias.add(materia);
-                System.out.println("inscripción a materia listada con éxito");
+                //System.out.println("inscripción a materia listada con éxito");
             }
             ps.close();
         } 
@@ -216,7 +216,7 @@ public class InscripcionData {
                 materia.setAnio(rs.getInt("año"));
                 
                 materias.add(materia);
-                System.out.println("materia NO cursada listada con éxito");
+                //System.out.println("materia NO cursada listada con éxito");
             }
         } 
         catch (SQLException ex) {

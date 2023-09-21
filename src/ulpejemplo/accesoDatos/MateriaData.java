@@ -108,6 +108,46 @@ public class MateriaData {
         return mate;
     }
     
+    public Materia buscarMateriaPorCodigo(int codigo)
+    {
+        String sql = "SELECT * FROM materia WHERE codigo_materia = ? AND estado = true"; //se puede poner estado = 1
+        
+        //declaro atributo que recibirá parametros del result set
+        Materia mate = null;
+        
+        try 
+        {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, codigo);
+            
+            //executeQuery devuleve un result set
+            ResultSet rs = ps.executeQuery();
+            
+            if(rs.next())
+            {
+                // construyo materia con datos de tabla
+                mate = new Materia();
+                
+                mate.setId_materia(rs.getInt("id_materia"));
+                mate.setCodigoMateria(rs.getInt("codigo_materia"));
+                mate.setNombre(rs.getString("nombre"));
+                mate.setAnio(rs.getInt("año"));
+                mate.setActiva(true);
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(null, "No se enontró materia con Código: " + codigo);
+            }
+            //cierro el objeto para liberar recursos
+            ps.close();
+            
+        } 
+        catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo acceder a la tabla materia " + ex.getMessage());
+        }
+        return mate;
+    }
+    
     public void modificarMateria (Materia materia)
     {
         //hago update de tala materia

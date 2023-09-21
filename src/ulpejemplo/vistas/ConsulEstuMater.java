@@ -5,17 +5,36 @@
  */
 package ulpejemplo.vistas;
 
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import ulpejemplo.accesoDatos.InscripcionData;
+import ulpejemplo.accesoDatos.MateriaData;
+import ulpejemplo.entidades.Estudiante;
+import ulpejemplo.entidades.Materia;
+
 /**
  *
  * @author marti
  */
 public class ConsulEstuMater extends javax.swing.JInternalFrame {
 
+    private DefaultTableModel modelo = new DefaultTableModel()
+    {
+        //debo hacer editable una sola columna de notas
+        @Override
+        public boolean isCellEditable(int row, int column)
+        {
+            return false;
+        }
+    };
     /**
      * Creates new form ConsulEstuMater
      */
     public ConsulEstuMater() {
         initComponents();
+        cargarCombo();
+        armarCabeceraTabla();
     }
 
     /**
@@ -42,7 +61,11 @@ public class ConsulEstuMater extends javax.swing.JInternalFrame {
 
         jLselecMater.setText("Seleccione Materia: ");
 
-        jCBmaterias.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Materia" }));
+        jCBmaterias.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBmateriasActionPerformed(evt);
+            }
+        });
 
         jTtableEstuPorMate.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -58,6 +81,11 @@ public class ConsulEstuMater extends javax.swing.JInternalFrame {
         jScrollPane1.setViewportView(jTtableEstuPorMate);
 
         jBsalir.setText("Salir");
+        jBsalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBsalirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -101,10 +129,60 @@ public class ConsulEstuMater extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jCBmateriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBmateriasActionPerformed
+        // TODO add your handling code here:
+        //Capturar combo seleccionado
+        //Cargar la tabla
+        modelo.setRowCount(0); 
+        Materia mateSelec = (Materia) jCBmaterias.getSelectedItem();
+        //instancio una inscripcionData para acceder a sus metodos
+        InscripcionData inscriData = new InscripcionData();
+        
+        List<Estudiante> estuLista = inscriData.obtenerEstudiantePorMateria(mateSelec.getId_materia());
+        
+        for (Estudiante aux : estuLista)
+        {
+            modelo.addRow(new Object[]{aux.getId_estudiante(), aux.getDni(), aux.getApellido(), aux.getNombre()});
+        }
+    }//GEN-LAST:event_jCBmateriasActionPerformed
+
+    private void cargarCombo()
+    {
+        //instanciar un MateriaData para acceder a sus métodos
+        MateriaData mateData = new MateriaData();
+        List<Materia> mateLista = mateData.listarMaterias();
+        //con un for each -enhanced for- voy agregando al comboBox
+        for (Materia aux: mateLista)
+        {
+            jCBmaterias.addItem(aux);
+        }
+    }
+    
+    private void armarCabeceraTabla()
+    {
+        modelo.addColumn("Id");
+        modelo.addColumn("DNI");
+        modelo.addColumn("Apellido");
+        modelo.addColumn("Nombre");
+        
+        //aviso que este será la representación para la tabla
+        jTtableEstuPorMate.setModel(modelo);
+    }
+    
+    private void jBsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBsalirActionPerformed
+        // TODO add your handling code here:
+        int choice = JOptionPane.showConfirmDialog(this, "¿Salir de este formulario?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) 
+        {
+            // con dispose salimos del internal frame. Para salir x completo: "System.exit(0);"
+            this.dispose();
+        }
+    }//GEN-LAST:event_jBsalirActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBsalir;
-    private javax.swing.JComboBox<String> jCBmaterias;
+    private javax.swing.JComboBox<Materia> jCBmaterias;
     private javax.swing.JLabel jLestuPorMate;
     private javax.swing.JLabel jLselecMater;
     private javax.swing.JScrollPane jScrollPane1;

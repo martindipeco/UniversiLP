@@ -5,17 +5,34 @@
  */
 package ulpejemplo.vistas;
 
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import ulpejemplo.accesoDatos.EstudianteData;
+import ulpejemplo.accesoDatos.InscripcionData;
+import ulpejemplo.accesoDatos.MateriaData;
+import ulpejemplo.entidades.Estudiante;
+import ulpejemplo.entidades.Inscripcion;
+import ulpejemplo.entidades.Materia;
+
 /**
  *
  * @author marti
  */
 public class AdminInscrip extends javax.swing.JInternalFrame {
 
+    //defino atributo para modelo de tabla
+    private DefaultTableModel modelo = new DefaultTableModel();
+    
     /**
      * Creates new form AdminInscrip
      */
     public AdminInscrip() {
         initComponents();
+        cargarCombo();
+        armarCabeceraTabla();
+        //por defecto pongo opcion de materias inscriptas, despues puedo cambiarlo
+        //jRBmateInscri.setSelected(true);
     }
 
     /**
@@ -48,7 +65,11 @@ public class AdminInscrip extends javax.swing.JInternalFrame {
 
         jLselecEstud.setText("Seleccione Estudiante");
 
-        jCBselecEstud.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Estudiante" }));
+        jCBselecEstud.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBselecEstudActionPerformed(evt);
+            }
+        });
 
         jLlistaMaterias.setText("Lista de Materias");
 
@@ -80,10 +101,25 @@ public class AdminInscrip extends javax.swing.JInternalFrame {
         jScrollPane1.setViewportView(jTtablaMaterias);
 
         jBinscribir.setText("Inscribir");
+        jBinscribir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBinscribirActionPerformed(evt);
+            }
+        });
 
         jBanularInscri.setText("Anular Inscripción");
+        jBanularInscri.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBanularInscriActionPerformed(evt);
+            }
+        });
 
         jBsalir.setText("Salir");
+        jBsalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBsalirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -153,32 +189,178 @@ public class AdminInscrip extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jRBmateInscriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBmateInscriActionPerformed
+        
+        // borramos al principio todo contenido existente de la tabla
+        modelo.setRowCount(0); 
         // si uno está ON, el otro está OFF y viceversa
         if (jRBmateInscri.isSelected()) 
         {
             jRBmateNOInscri.setSelected(false);
             jBanularInscri.setEnabled(true);
             jBinscribir.setEnabled(false);
+            
+            //duplico logica del combo box
+            Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+            InscripcionData inscriData = new InscripcionData();
+            List<Materia> matesInsc = inscriData.obtenerMateriasCursadas(estu.getId_estudiante());
+            for (Materia aux : matesInsc)
+            {
+                System.out.println("Inscripto a: " + aux.getNombre());
+                //cargo datos en tabla
+                modelo.addRow(new Object[]{aux.getId_materia(), aux.getNombre(), aux.getAnio()});
+            }
         }
         
     }//GEN-LAST:event_jRBmateInscriActionPerformed
 
     private void jRBmateNOInscriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBmateNOInscriActionPerformed
+        
+        // borramos al principio todo contenido existente de la tabla
+        modelo.setRowCount(0); 
         // si uno está ON, el otro está OFF y viceversa
         if (jRBmateNOInscri.isSelected()) 
         {
             jRBmateInscri.setSelected(false);
             jBinscribir.setEnabled(true);
             jBanularInscri.setEnabled(false);
+            
+            //duplico logica del combo box
+            Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+            InscripcionData inscriData = new InscripcionData();
+            List<Materia> matesNOinsc = inscriData.obtenerMateriasNoCursadas(estu.getId_estudiante());
+            for (Materia aux : matesNOinsc)
+            {
+                System.out.println("NO inscripto a: " + aux.getNombre());
+                //cargo datos en tabla
+                modelo.addRow(new Object[]{aux.getId_materia(), aux.getNombre(), aux.getAnio()});
+            }
+            
         }
     }//GEN-LAST:event_jRBmateNOInscriActionPerformed
 
+    private void jCBselecEstudActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBselecEstudActionPerformed
+        //capturar estudiante seleccionado en Combo Box
+        //mostrar por tabla todas las materias a la que está inscripto
+        // borramos al principio todo contenido existente de la tabla
+        modelo.setRowCount(0); 
+        Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+        //instancio una inscripcionData para acceder a sus metodos
+        InscripcionData inscriData = new InscripcionData();
+        //Dependiendo de la selección muestro materias inscriptas o no
+        if (jRBmateInscri.isSelected())
+        {
+            List<Materia> matesInsc = inscriData.obtenerMateriasCursadas(estu.getId_estudiante());
+            for (Materia aux : matesInsc)
+            {
+                System.out.println("Inscripto a: " + aux.getNombre());
+                //cargo datos en tabla
+                modelo.addRow(new Object[]{aux.getId_materia(), aux.getNombre(), aux.getAnio()});
+                
+            }
+        }
+        else
+        {
+            List<Materia> matesNOinsc = inscriData.obtenerMateriasNoCursadas(estu.getId_estudiante());
+            for (Materia aux : matesNOinsc)
+            {
+                System.out.println("NO inscripto a: " + aux.getNombre());
+                //cargo datos en tabla
+                modelo.addRow(new Object[]{aux.getId_materia(), aux.getNombre(), aux.getAnio()});
+            }
+        }
+        
+    }//GEN-LAST:event_jCBselecEstudActionPerformed
+
+    private void jBinscribirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBinscribirActionPerformed
+        // Trabajo con una selección a la vez, NO puedo hacer múltiples inscripciones:
+        //debo crear objeto Inscripcion para pasarlo al metodo
+        //si existe en tabla, significa que es válido
+        //capturo la selección y paso parámetros
+        int filaSelec = jTtablaMaterias.getSelectedRow();
+        if (filaSelec != -1)
+        {
+            int idMate = (Integer) jTtablaMaterias.getValueAt(filaSelec, 0);
+            //instancio mateData para metodos
+            MateriaData mateData = new MateriaData();
+            //traigo materia por id
+            Materia mate = mateData.buscarMateriaPorID(idMate);
+            //traigo estudiante por comboBox
+            Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+            //Instancio inscripción con 0.0 como nota inicial
+            Inscripcion inscri = new Inscripcion(estu, mate);
+            //paso inscripcion por parametro
+            InscripcionData inscriData = new InscripcionData();
+            inscriData.guardarInscripcion(inscri);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione una materia");
+        }
+    }//GEN-LAST:event_jBinscribirActionPerformed
+
+    private void jBanularInscriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBanularInscriActionPerformed
+        // TODO add your handling code here:
+        int filaSelec = jTtablaMaterias.getSelectedRow();
+        if (filaSelec != -1)
+        {
+            int idMate = (Integer) jTtablaMaterias.getValueAt(filaSelec, 0);
+            //traigo estudiante por comboBox
+            Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+            //Instancio inscriData para acceder a metodos
+            InscripcionData inscriData = new InscripcionData();
+            inscriData.borrarInscripcionMateriaEstudiante(idMate, estu.getId_estudiante());
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione una materia");
+        }
+    }//GEN-LAST:event_jBanularInscriActionPerformed
+
+    private void jBsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBsalirActionPerformed
+        // TODO add your handling code here:
+        int choice = JOptionPane.showConfirmDialog(this, "¿Salir de este formulario?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) 
+        {
+            // con dispose salimos del internal frame. Para salir x completo: "System.exit(0);"
+            this.dispose();
+        }
+    }//GEN-LAST:event_jBsalirActionPerformed
+
+    private void cargarCombo()
+    {
+        //instanciar un estuData para acceder a sus métodos
+        EstudianteData estuData = new EstudianteData();
+        List<Estudiante> estuLista = estuData.listarEstudiantesActivos();
+        //con un for each -enhanced for- voy agregando al comboBox
+        for(Estudiante aux : estuLista)
+        {
+            jCBselecEstud.addItem(aux);
+        }
+    }
+    
+    private void armarCabeceraTabla()
+    {
+        modelo.addColumn("Id");
+        modelo.addColumn("Nombre");
+        modelo.addColumn("Año");
+        //aviso que este será la representación para la tabla
+        jTtablaMaterias.setModel(modelo);
+    }
+    
+    //Por el momento estamos definiendo en cada evento, en vez del llamado general a este método
+    private void cargarDatosTabla(List<Materia> materias)
+    {
+        for (Materia aux : materias)
+        {
+            modelo.addRow(new Object[]{aux.getId_materia(), aux.getNombre(), aux.getAnio()});
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBanularInscri;
     private javax.swing.JButton jBinscribir;
     private javax.swing.JButton jBsalir;
-    private javax.swing.JComboBox<String> jCBselecEstud;
+    private javax.swing.JComboBox<Estudiante> jCBselecEstud;
     private javax.swing.JLabel jLinscripciones;
     private javax.swing.JLabel jLlistaMaterias;
     private javax.swing.JLabel jLselecEstud;

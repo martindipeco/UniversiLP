@@ -235,6 +235,8 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
 
                 //apagar boton para guardar, porque ese alumno ya existe
                 jBguardar.setEnabled(false);
+                
+                //¿agregar botón de "editar" para modificar datos????
             }
             
         }

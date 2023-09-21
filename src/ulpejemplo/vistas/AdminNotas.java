@@ -5,17 +5,47 @@
  */
 package ulpejemplo.vistas;
 
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import ulpejemplo.accesoDatos.EstudianteData;
+import ulpejemplo.accesoDatos.InscripcionData;
+import ulpejemplo.accesoDatos.MateriaData;
+import ulpejemplo.entidades.Estudiante;
+import ulpejemplo.entidades.Inscripcion;
+import ulpejemplo.entidades.Materia;
+
 /**
  *
  * @author marti
  */
 public class AdminNotas extends javax.swing.JInternalFrame {
 
+    //defino atributo para modelo de tabla
+    private DefaultTableModel modelo = new DefaultTableModel()
+    {
+        //debo hacer editable una sola columna de notas
+        @Override
+        public boolean isCellEditable(int row, int column)
+        {
+            if (column == 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    };
+    
     /**
      * Creates new form AdminNotas
      */
     public AdminNotas() {
         initComponents();
+        cargarCombo();
+        armarCabeceraTabla();
     }
 
     /**
@@ -30,7 +60,7 @@ public class AdminNotas extends javax.swing.JInternalFrame {
         jLadminNotas = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jLselecEstu = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        jCBselecEstud = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTtablaGestionNotas = new javax.swing.JTable();
         jBguardar = new javax.swing.JButton();
@@ -44,7 +74,11 @@ public class AdminNotas extends javax.swing.JInternalFrame {
 
         jLselecEstu.setText("Seleccione Estudiante: ");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Estudiante" }));
+        jCBselecEstud.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBselecEstudActionPerformed(evt);
+            }
+        });
 
         jTtablaGestionNotas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -60,8 +94,18 @@ public class AdminNotas extends javax.swing.JInternalFrame {
         jScrollPane1.setViewportView(jTtablaGestionNotas);
 
         jBguardar.setText("Guardar");
+        jBguardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBguardarActionPerformed(evt);
+            }
+        });
 
         jBsalir.setText("Salir");
+        jBsalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBsalirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -88,7 +132,7 @@ public class AdminNotas extends javax.swing.JInternalFrame {
                         .addGap(17, 17, 17)
                         .addComponent(jLselecEstu)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jCBselecEstud, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(90, 90, 90))
         );
         layout.setVerticalGroup(
@@ -101,7 +145,7 @@ public class AdminNotas extends javax.swing.JInternalFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLselecEstu)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jCBselecEstud, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 98, Short.MAX_VALUE)
@@ -114,11 +158,110 @@ public class AdminNotas extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jCBselecEstudActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBselecEstudActionPerformed
+        // TODO add your handling code here:
+        //cargar la tabla con los datos del estudiante selecccionado
+        // borramos al principio todo contenido existente de la tabla
+        modelo.setRowCount(0); 
+        Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+        //instancio una inscripcionData para acceder a sus metodos
+        InscripcionData inscriData = new InscripcionData();
+        
+        List<Materia> matesInsc = inscriData.obtenerMateriasCursadas(estu.getId_estudiante());
+        
+        List<Inscripcion> inscriList = inscriData.obtenerInscripcionesPorEstud(estu.getId_estudiante());
+        
+        //hago una nested loop para combinar lista de materias y lista de inscripciones
+        for (Materia aux : matesInsc)
+        {
+            System.out.println("Inscripto a: " + aux.getNombre());
+            //cargo datos en tabla
+            //la nota debe buscarla aparte
+            //con el metodo obtenerInscripcionesPorEstud
+            float notAux= 0.0f;
+            for (Inscripcion auxilio : inscriList)
+            {
+                if(aux.getId_materia() == auxilio.getMateriaID())
+                {
+                    notAux = auxilio.getNota();
+                }
+            }
+            modelo.addRow(new Object[]{aux.getId_materia(), aux.getNombre(), notAux});
+        }
+    }//GEN-LAST:event_jCBselecEstudActionPerformed
+
+    private void jBguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBguardarActionPerformed
+        // TODO add your handling code here:
+        // Trabajo con una selección a la vez, NO puedo hacer múltiples inscripciones:
+        //debo crear objeto Inscripcion para pasarlo al metodo
+        //si existe en tabla, significa que es válido
+        //capturo la selección y paso parámetros
+        int filaSelec = jTtablaGestionNotas.getSelectedRow();
+        if (filaSelec != -1)
+        {
+            int idMate = (Integer) jTtablaGestionNotas.getValueAt(filaSelec, 0);
+            //traigo estudiante por comboBox
+            Estudiante estu = (Estudiante) jCBselecEstud.getSelectedItem();
+            int idEstu = estu.getId_estudiante();
+            
+            //Casteo loco sugerido por ChatGPT, ya que castear directo Float tiraba error
+            //In Swing tables, by default, cell values are often stored as Strings, even if they represent numeric values. 
+            //So, attempting to cast it to a Float directly will result in the mentioned exception.
+            String floatString = (String) jTtablaGestionNotas.getValueAt(filaSelec, 2);
+            
+            try 
+            {
+                float nota = Float.parseFloat(floatString);
+                
+                InscripcionData inscriData = new InscripcionData();
+                inscriData.actualizarNota(idEstu, idMate, nota);
+                // Now 'nota' contains the parsed float value.
+            } catch (NumberFormatException e) {
+                // Handle the case where the cell value is not a valid float.
+                JOptionPane.showMessageDialog(this, "Por favor, ingrese un valor válido");
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione una materia");
+        }
+    }//GEN-LAST:event_jBguardarActionPerformed
+
+    private void jBsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBsalirActionPerformed
+        // TODO add your handling code here:
+        int choice = JOptionPane.showConfirmDialog(this, "¿Salir de este formulario?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) 
+        {
+            // con dispose salimos del internal frame. Para salir x completo: "System.exit(0);"
+            this.dispose();
+        }
+    }//GEN-LAST:event_jBsalirActionPerformed
+
+    private void cargarCombo()
+    {
+        //instanciar un estuData para acceder a sus métodos
+        EstudianteData estuData = new EstudianteData();
+        List<Estudiante> estuLista = estuData.listarEstudiantesActivos();
+        //con un for each -enhanced for- voy agregando al comboBox
+        for(Estudiante aux : estuLista)
+        {
+            jCBselecEstud.addItem(aux);
+        }
+    }
+    
+    private void armarCabeceraTabla()
+    {
+        modelo.addColumn("Id");
+        modelo.addColumn("Nombre");
+        modelo.addColumn("Nota");
+        //aviso que este será la representación para la tabla
+        jTtablaGestionNotas.setModel(modelo);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBguardar;
     private javax.swing.JButton jBsalir;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<Estudiante> jCBselecEstud;
     private javax.swing.JLabel jLadminNotas;
     private javax.swing.JLabel jLselecEstu;
     private javax.swing.JScrollPane jScrollPane1;

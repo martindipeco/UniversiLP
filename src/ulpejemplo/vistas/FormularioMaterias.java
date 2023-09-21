@@ -5,6 +5,10 @@
  */
 package ulpejemplo.vistas;
 
+import javax.swing.JOptionPane;
+import ulpejemplo.accesoDatos.MateriaData;
+import ulpejemplo.entidades.Materia;
+
 /**
  *
  * @author marti
@@ -51,18 +55,38 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
         jLcodigo.setText("Código: ");
 
         jBbuscar.setText("Buscar");
+        jBbuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBbuscarActionPerformed(evt);
+            }
+        });
 
         jLnombre.setText("Nombre: ");
 
         jLactivo.setText("Activo: ");
 
         jBnuevo.setText("Nuevo");
+        jBnuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBnuevoActionPerformed(evt);
+            }
+        });
 
         jBeliminar.setText("Eliminar");
+        jBeliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBeliminarActionPerformed(evt);
+            }
+        });
 
         jBguardar.setText("Guardar");
 
         jBsalir.setText("Salir");
+        jBsalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBsalirActionPerformed(evt);
+            }
+        });
 
         jLanio.setText("Año: ");
 
@@ -137,6 +161,103 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jBbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBbuscarActionPerformed
+        // TODO add your handling code here:
+        try
+        {
+            int codigo = Integer.parseInt(jTFcodigo.getText());
+            //instancio una materia data para acceder a sus métodos
+            MateriaData mateData = new MateriaData();
+            //instancio una materia que recibirá los datos
+            Materia mate = new Materia();
+            mate = mateData.buscarMateriaPorCodigo(codigo);
+            //si el método me devuelve una materia null, significa que no existe esa materia
+            if (mate == null)
+            {
+                //borramos codigo y nos vamos
+                jTFcodigo.setText("");
+                return;
+            }
+            else
+            {
+                //¿deshabilito "guardar" para evitar duplicados?
+                //cargo datos en formulario
+                jTFnombre.setText(mate.getNombre());
+                jTFanio.setText("" + mate.getAnio()); //una manera de convertir int a string, sumarle una cadena vacía
+                jRBactivo.setSelected(true); // si estamos acá es porque era activo, si no lo era, no lo devolvia, o devolvia null
+                
+                //apagar boton para guardar, porque ese alumno ya existe
+                jBguardar.setEnabled(false);
+                
+                //¿agregar botón de "editar" para modificar datos????
+            }
+        }
+        catch (NumberFormatException nfe)
+        {
+            JOptionPane.showMessageDialog(this, "Ingrese un número valido");
+            jTFcodigo.setText("");
+            return;
+        }
+    }//GEN-LAST:event_jBbuscarActionPerformed
+
+    private void jBeliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBeliminarActionPerformed
+        // TODO add your handling code here:
+        try
+        {
+            int codigo = Integer.parseInt(jTFcodigo.getText());
+            //instancio MateriaData y Materia
+            MateriaData mateData = new MateriaData();
+            Materia mate = new Materia();
+            mate = mateData.buscarMateriaPorCodigo(codigo);
+            if (mate == null)
+            {
+                jTFcodigo.setText("");
+                return;
+            }
+            else
+            {
+                int id = mate.getId_materia();
+                mateData.eliminarMateria(id);
+                limpiarCampos();
+                
+                jBguardar.setEnabled(false);
+            }
+        }
+        //An empty TextField, or doubles or floats would result in a NumberFormatException
+        catch(NumberFormatException nfe)
+        {
+            JOptionPane.showMessageDialog(this, "Ingrese un número valido");
+            jTFcodigo.setText("");
+            return;
+        }
+    }//GEN-LAST:event_jBeliminarActionPerformed
+
+    private void jBnuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBnuevoActionPerformed
+        // TODO add your handling code here:
+        //limpia campos
+        limpiarCampos();
+        //habilita guardar
+        jBguardar.setEnabled(true);
+        //hace editables todos los campos?
+    }//GEN-LAST:event_jBnuevoActionPerformed
+
+    private void jBsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBsalirActionPerformed
+        // TODO add your handling code here:
+        int choice = JOptionPane.showConfirmDialog(this, "¿Salir de este formulario?", "Confirmación", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) 
+        {
+            // con dispose salimos del internal frame. Para salir x completo: "System.exit(0);"
+            this.dispose();
+        }
+    }//GEN-LAST:event_jBsalirActionPerformed
+
+    private void limpiarCampos()
+    {
+        jTFcodigo.setText("");
+        jTFnombre.setText("");
+        jTFanio.setText("");
+        jRBactivo.setSelected(false);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jBbuscar;
