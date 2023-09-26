@@ -7,6 +7,7 @@ package ulpejemplo.vistas;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import ulpejemplo.accesoDatos.EstudianteData;
@@ -205,11 +206,12 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
             EstudianteData estuData = new EstudianteData();
             //instancio un estudiante para recibir datos
             Estudiante estu = new Estudiante();
-            estu = estuData.buscarEstudiantePorDNI(dni);
+            estu = estuData.buscarEstudiantePorDNI(dni, true);
             //si el método me devuelve un estudiante null, significa que no existe ese estudiante
             if (estu == null)
             {
                 //borramos el dni ingresado y nos vamos
+                //el método buscar ya tiene su aviso de No Encontrado
                 jTFdni.setText("");
                 return;
             }
@@ -233,8 +235,9 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
 
                 jDCHfechaNac.setDate(Date.from(estu.getFechaNac().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-                //apagar boton para guardar, porque ese alumno ya existe
-                jBguardar.setEnabled(false);
+                //debería apagar boton para guardar, porque ese alumno ya existe
+                //pero sino, no puedo acceder a "modificar" desde ese mismo boton
+                //jBguardar.setEnabled(false);
                 
                 //¿agregar botón de "editar" para modificar datos????
             }
@@ -261,7 +264,7 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
             EstudianteData estuData = new EstudianteData();
             //instancio un estudiante para recibir datos
             Estudiante estu = new Estudiante();
-            estu = estuData.buscarEstudiantePorDNI(dni);
+            estu = estuData.buscarEstudiantePorDNI(dni, true);
             //si el método me devuelve un estudiante null, significa que no existe ese estudiante o que no está activo
             if (estu == null)
             {
@@ -304,26 +307,122 @@ public class FormularioEstudiante extends javax.swing.JInternalFrame {
 
     private void jBguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBguardarActionPerformed
         // TODO add your handling code here:
-        //capturar todos los campos y generar un estudiante con el constructor SIN id
+        //capturar todos los campos 
+        //buscar estudiante
+        //si el estudiante existe, modifiarlo a traves del metodo modificar
+        //si el estudiante NO existe, generar un estudiante con el constructor SIN id
         try
         {
+            //debo discernir si el estudiante es nuevo para guardar o existente para editar
+            //busco estudiante por dni
+            //si devuelve null, es nuevo
+            //caso contrario, es para editar
+            int dni = Integer.parseInt(jTFdni.getText());
             //instancio un estudiante data para acceder a sus metodos
             EstudianteData estuData = new EstudianteData();
-            
-            int dni = Integer.parseInt(jTFdni.getText());
-            String apellido = jTFapellido.getText();
-            String nombre = jTFnombre.getText();
-            LocalDate fechaNac = jDCHfechaNac.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            Boolean activo = false;
-            if (jRBactivo.isSelected())
+            //busco estudiante por dni
+            Estudiante estuAux = estuData.buscarEstudiantePorDNI(dni, false);
+            //abrimos el if
+            if (estuAux != null)
             {
-                activo = true;
+                //metodo modificar
+                int estuID = estuAux.getId_estudiante();
+                int estuDNI = Integer.parseInt(jTFdni.getText());
+                String apellido = jTFapellido.getText();
+                String nombre = jTFnombre.getText();
+                LocalDate fechaNac = jDCHfechaNac.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                //¿debería setear activo siempre true cuando creo un estudiante?
+                Boolean activo = false;
+                if (jRBactivo.isSelected())
+                {
+                    activo = true;
+                }
+                Estudiante estuPosta = new Estudiante(estuID, estuDNI, apellido, nombre, fechaNac, activo);
+                // la forma correcta es con Override equals() y hashCode() , despues -> if (estuAux.equals(estuPosta))
+                //if (estuPosta.equals(estuAux))
+                if (estuAux.getDni() == estuPosta.getDni() && estuAux.getNombre().equals(estuPosta.getNombre())&& estuAux.getApellido().equals(estuPosta.getApellido())&& estuAux.getFechaNac().compareTo(estuPosta.getFechaNac())==0 && estuAux.isActivo() == estuPosta.isActivo())
+                {
+                    JOptionPane.showMessageDialog(this, "No se han producido cambios");
+                    return;
+                }
+                estuData.modificarEstudiante(estuPosta);
+                
             }
-            //instancio un estudiante a partir de datos
-            Estudiante estu = new Estudiante(dni, apellido, nombre, fechaNac, activo);
-            // se lo paso al método guardar estudiante
-            estuData.guardarEstudiante(estu);
-            
+            else
+            {
+                try
+                {
+                    if (jTFapellido.getText().isEmpty())
+                    {
+                        JOptionPane.showMessageDialog(this, "Ingrese un apelliido");
+                        return;
+                    }
+                    if (jTFapellido.getText().chars().anyMatch(Character::isDigit))
+                    {
+                        JOptionPane.showMessageDialog(this, "No se permiten números en apellido");
+                        return;
+                    }
+                    String apellido = jTFapellido.getText();
+                    
+                    if (jTFnombre.getText().isEmpty())
+                    {
+                        JOptionPane.showMessageDialog(this, "Ingrese un nombre");
+                        return;
+                    }
+                    if (jTFnombre.getText().chars().anyMatch(Character::isDigit))
+                    {
+                        JOptionPane.showMessageDialog(this, "No se permiten números en nombre");
+                        return;
+                    }
+                    String nombre = jTFnombre.getText();
+                    
+                    //debo manejar con if si la fecha seleccionada está vacía
+                    
+                    if (jDCHfechaNac.getDate() == null)
+                    {
+                        JOptionPane.showMessageDialog(this, "Ingrese una fecha");
+                        return;
+                    }
+                    
+                    //para mejorar: agregar condicional para que no permita ingresar fechas que generen estudiantes menores de edad
+                    //año presente - año elegido > 18 , ponele
+                    
+                    Calendar fechaActual = Calendar.getInstance();
+                    Calendar fechaNacAux = Calendar.getInstance();
+                    fechaNacAux.setTime(jDCHfechaNac.getDate());
+                    
+                    int edad = fechaActual.get(Calendar.YEAR) - fechaNacAux.get(Calendar.YEAR);
+                    
+                    if (fechaActual.get(Calendar.MONTH) < fechaNacAux.get(Calendar.MONTH) || (fechaActual.get(Calendar.MONTH) == fechaNacAux.get(Calendar.MONTH) && fechaActual.get(Calendar.DAY_OF_MONTH) < fechaNacAux.get(Calendar.DAY_OF_MONTH))) 
+                    {
+                        edad--;
+                    }
+
+                    if (edad < 18) 
+                    {
+                        JOptionPane.showMessageDialog(this, "Estudiante debe ser mayor de 18 años");
+                        return;
+                    }
+                    
+                    
+                    LocalDate fechaNac = jDCHfechaNac.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    Boolean activo = false;
+                    if (jRBactivo.isSelected())
+                    {
+                        activo = true;
+                    }
+                    //instancio un estudiante a partir de datos
+                    Estudiante estu = new Estudiante(dni, apellido, nombre, fechaNac, activo);
+                    // se lo paso al método guardar estudiante
+                    estuData.guardarEstudiante(estu);
+                }
+                //An empty TextField, or doubles or floats would result in a NumberFormatException
+                //in numeric text fields
+                catch(NumberFormatException nfe)
+                {
+                    JOptionPane.showMessageDialog(this, "Ingrese un dato valido");
+                }
+            }
             limpiarCampos();
             
         }

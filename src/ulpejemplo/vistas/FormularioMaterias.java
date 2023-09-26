@@ -80,6 +80,11 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
         });
 
         jBguardar.setText("Guardar");
+        jBguardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBguardarActionPerformed(evt);
+            }
+        });
 
         jBsalir.setText("Salir");
         jBsalir.addActionListener(new java.awt.event.ActionListener() {
@@ -170,7 +175,8 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
             MateriaData mateData = new MateriaData();
             //instancio una materia que recibirá los datos
             Materia mate = new Materia();
-            mate = mateData.buscarMateriaPorCodigo(codigo);
+            //paso true como opcion a mostrar JOptionPane
+            mate = mateData.buscarMateriaPorCodigo(codigo, true);
             //si el método me devuelve una materia null, significa que no existe esa materia
             if (mate == null)
             {
@@ -187,7 +193,8 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
                 jRBactivo.setSelected(true); // si estamos acá es porque era activo, si no lo era, no lo devolvia, o devolvia null
                 
                 //apagar boton para guardar, porque ese alumno ya existe
-                jBguardar.setEnabled(false);
+                //no puedo apagarlo porque sino no puedo acceder a "modificar" desde el mismo botón
+                //jBguardar.setEnabled(false);
                 
                 //¿agregar botón de "editar" para modificar datos????
             }
@@ -208,7 +215,7 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
             //instancio MateriaData y Materia
             MateriaData mateData = new MateriaData();
             Materia mate = new Materia();
-            mate = mateData.buscarMateriaPorCodigo(codigo);
+            mate = mateData.buscarMateriaPorCodigo(codigo, false);
             if (mate == null)
             {
                 jTFcodigo.setText("");
@@ -250,6 +257,61 @@ public class FormularioMaterias extends javax.swing.JInternalFrame {
             this.dispose();
         }
     }//GEN-LAST:event_jBsalirActionPerformed
+
+    private void jBguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBguardarActionPerformed
+        // TODO add your handling code here:
+        try
+        {
+            int codigo = Integer.parseInt(jTFcodigo.getText());
+            //instancio una materia data para acceder a sus métodos
+            MateriaData mateData = new MateriaData();
+            //instancio una materia que recibirá los datos
+            //metodo busccar por codigo no devuelve cartel de warning si no hay materia
+            Materia mateAux = mateData.buscarMateriaPorCodigo(codigo, false);//seteo false para q no muestre carteles
+            //si el método me devuelve una materia, habilito a modificar
+            if (mateAux != null)
+            {
+                //guardo el id traido de la busqueda, y el resto lo obtengo del formulario
+                //para luego pasarselo a la materia "posta", o "modificada"
+                int mateID = mateAux.getId_materia();
+                int mateCOD = Integer.parseInt(jTFcodigo.getText());
+                String mateNOM = jTFnombre.getText();
+                int mateANI = Integer.parseInt(jTFanio.getText());
+                boolean activa = true;
+                
+                Materia matePosta = new Materia(mateID, mateCOD, mateNOM, mateANI, activa);
+                
+                //si no se hizo ninguna modificacion, no deberia habilitarse la posibilidad de modificar
+                // la forma correcta es con Override equals() y hashCode() , despues -> if (mateAux.equals(matePosta))
+                if (mateAux.getCodigoMateria() == matePosta.getCodigoMateria() && mateAux.getNombre().equals(matePosta.getNombre()) && mateAux.getAnio() == matePosta.getAnio() && mateAux.isActiva() == matePosta.isActiva())
+                {
+                    JOptionPane.showMessageDialog(this, "No se registran cambios");
+                    return;
+                }
+                mateData.modificarMateria(matePosta);
+            }
+            else
+            {
+                //si la materia no existe, entonces la guardo
+                //uso el codigo ya obtenido
+                String nombre = jTFnombre.getText();
+                int anio = Integer.parseInt(jTFanio.getText());
+                boolean activa = false;
+                if (jRBactivo.isSelected())
+                {
+                    activa = true;
+                }
+                Materia matePosta = new Materia(codigo, nombre, anio, activa);
+                mateData.guardarMateria(matePosta);
+            }
+            limpiarCampos();
+        }
+        catch(NumberFormatException nfe)
+        {
+            JOptionPane.showMessageDialog(this, "Ingrese un dato valido");
+            return;
+        }
+    }//GEN-LAST:event_jBguardarActionPerformed
 
     private void limpiarCampos()
     {

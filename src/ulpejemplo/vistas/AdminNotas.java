@@ -94,6 +94,11 @@ public class AdminNotas extends javax.swing.JInternalFrame {
         jScrollPane1.setViewportView(jTtablaGestionNotas);
 
         jBguardar.setText("Guardar");
+        jBguardar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jBguardarMouseEntered(evt);
+            }
+        });
         jBguardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jBguardarActionPerformed(evt);
@@ -207,12 +212,14 @@ public class AdminNotas extends javax.swing.JInternalFrame {
             //Casteo loco sugerido por ChatGPT, ya que castear directo Float tiraba error
             //In Swing tables, by default, cell values are often stored as Strings, even if they represent numeric values. 
             //So, attempting to cast it to a Float directly will result in the mentioned exception.
-            String floatString = (String) jTtablaGestionNotas.getValueAt(filaSelec, 2);
+            //String floatString = (String) jTtablaGestionNotas.getValueAt(filaSelec, 2);
             
             try 
             {
-                float nota = Float.parseFloat(floatString);
+                String floatString = (String) jTtablaGestionNotas.getValueAt(filaSelec, 2);
+                float nota =  Float.parseFloat(floatString);
                 
+                //float nota =  (Float) jTtablaGestionNotas.getValueAt(filaSelec, 2);  
                 InscripcionData inscriData = new InscripcionData();
                 inscriData.actualizarNota(idEstu, idMate, nota);
                 // Now 'nota' contains the parsed float value.
@@ -236,6 +243,11 @@ public class AdminNotas extends javax.swing.JInternalFrame {
             this.dispose();
         }
     }//GEN-LAST:event_jBsalirActionPerformed
+
+    private void jBguardarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jBguardarMouseEntered
+        // TODO add your handling code here:
+        //BUSCAR SELECT ROW
+    }//GEN-LAST:event_jBguardarMouseEntered
 
     private void cargarCombo()
     {

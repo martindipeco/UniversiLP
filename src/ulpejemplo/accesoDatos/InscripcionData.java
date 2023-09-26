@@ -353,7 +353,7 @@ public class InscripcionData {
     
     public void actualizarNota(int idEstud, int idMate, float nota)
     {
-        String sql = "UPDATE inscripcion SET nota = ? WHERE idEstudiante = ? AND idMateria = ?";
+        String sql = "UPDATE inscripcion SET nota = ? WHERE (idEstudiante = ? AND idMateria = ?)";
         
         try {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -367,7 +367,7 @@ public class InscripcionData {
             
             if (exito > 0)
             {
-                JOptionPane.showMessageDialog(null, "Se actualizó la nota del estudiante con ID " + idEstud + " en la materia ID " + idMate + " a " + nota);
+                JOptionPane.showMessageDialog(null, "Se actualizó la nota del estudiante con ID " + idEstud + " en la materia ID " + idMate);
             }
         } 
         catch (SQLException ex) 

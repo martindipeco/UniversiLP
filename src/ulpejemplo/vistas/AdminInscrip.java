@@ -32,7 +32,7 @@ public class AdminInscrip extends javax.swing.JInternalFrame {
         cargarCombo();
         armarCabeceraTabla();
         //por defecto pongo opcion de materias inscriptas, despues puedo cambiarlo
-        //jRBmateInscri.setSelected(true);
+        jRBmateInscri.setSelected(true);
     }
 
     /**
@@ -291,6 +291,9 @@ public class AdminInscrip extends javax.swing.JInternalFrame {
             //paso inscripcion por parametro
             InscripcionData inscriData = new InscripcionData();
             inscriData.guardarInscripcion(inscri);
+            JOptionPane.showMessageDialog(this, "Inscripción exitosa a " + mate.getNombre());
+            // borramos al principio todo contenido existente de la tabla
+            modelo.setRowCount(0); 
         }
         else
         {
@@ -309,6 +312,8 @@ public class AdminInscrip extends javax.swing.JInternalFrame {
             //Instancio inscriData para acceder a metodos
             InscripcionData inscriData = new InscripcionData();
             inscriData.borrarInscripcionMateriaEstudiante(idMate, estu.getId_estudiante());
+            // borramos al principio todo contenido existente de la tabla
+            modelo.setRowCount(0); 
         }
         else
         {

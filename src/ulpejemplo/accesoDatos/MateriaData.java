@@ -108,7 +108,7 @@ public class MateriaData {
         return mate;
     }
     
-    public Materia buscarMateriaPorCodigo(int codigo)
+    public Materia buscarMateriaPorCodigo(int codigo, boolean cartele)
     {
         String sql = "SELECT * FROM materia WHERE codigo_materia = ? AND estado = true"; //se puede poner estado = 1
         
@@ -136,7 +136,15 @@ public class MateriaData {
             }
             else
             {
-                JOptionPane.showMessageDialog(null, "No se enontró materia con Código: " + codigo);
+                //distintas opciones para mostrar o no los carteles
+                if (cartele)
+                {
+                    JOptionPane.showMessageDialog(null, "No se enontró materia con Código: " + codigo);
+                }
+                else
+                {
+                    System.out.println("aún no existe esa materia");
+                }
             }
             //cierro el objeto para liberar recursos
             ps.close();
@@ -168,11 +176,13 @@ public class MateriaData {
             //estoy modificando una sola materia, por lo tanto si es correcto, devuelve 1
             if (exito == 1)
             {
+                //con.commit();
                 JOptionPane.showMessageDialog(null, "Materia modificada existosamente");
             }
             // debería agregar ps.close() ???
         } 
         catch (SQLException ex) {
+            //con.rollback(); // Rollback the transaction if an error occurs
             JOptionPane.showMessageDialog(null, "No se pudo acceder a la tabla materia");
         }
     }

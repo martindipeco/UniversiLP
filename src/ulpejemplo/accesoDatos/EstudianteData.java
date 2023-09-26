@@ -85,7 +85,7 @@ public class EstudianteData {
             //estoy modificando un solo alumno, por lo tanto si es correcto, devuelve 1
             if (exito == 1)
             {
-                JOptionPane.showMessageDialog(null, "Estudiante modificado existosamente");
+                JOptionPane.showMessageDialog(null, "Estudiante modificado exitosamente");
             }
             // debería agregar ps.close() ???
         } 
@@ -157,7 +157,7 @@ public class EstudianteData {
         return est;
     }
     
-    public Estudiante buscarEstudiantePorDNI(int dni)
+    public Estudiante buscarEstudiantePorDNI(int dni, boolean cartele)
     {
         String sql = "SELECT id_estudiante, dni, apellido, nombre, fechaNac FROM estudiante WHERE dni = ? AND estado = true"; //se puede poner estado = 1
         
@@ -187,7 +187,14 @@ public class EstudianteData {
             }
             else
             {
-                JOptionPane.showMessageDialog(null, "No se enontró estudiante con DNI: " + dni);
+                if (cartele)
+                {
+                    JOptionPane.showMessageDialog(null, "No se enontró estudiante con DNI: " + dni);
+                }
+                else
+                {
+                    System.out.println("No hay estudiante aún");
+                }
             }
             //cierro el objeto para liberar recursos
             ps.close();
