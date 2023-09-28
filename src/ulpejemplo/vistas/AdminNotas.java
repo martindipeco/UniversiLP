@@ -5,9 +5,15 @@
  */
 package ulpejemplo.vistas;
 
+import java.awt.Component;
 import java.util.List;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import ulpejemplo.accesoDatos.EstudianteData;
 import ulpejemplo.accesoDatos.InscripcionData;
 import ulpejemplo.accesoDatos.MateriaData;
@@ -47,7 +53,7 @@ public class AdminNotas extends javax.swing.JInternalFrame {
         cargarCombo();
         armarCabeceraTabla();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -245,8 +251,14 @@ public class AdminNotas extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jBsalirActionPerformed
 
     private void jBguardarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jBguardarMouseEntered
-        // TODO add your handling code here:
-        //BUSCAR SELECT ROW
+        //Before the save button is clicked, explicitly commit the cell edit. 
+        //stopCellEditing method of the TableCellEditor. 
+        //ensure that any changes made in the currently edited cell are committed
+        // Commit the cell edit before saving
+        TableCellEditor cellEditor = jTtablaGestionNotas.getCellEditor();
+        if (cellEditor != null) {
+            cellEditor.stopCellEditing();
+        }
     }//GEN-LAST:event_jBguardarMouseEntered
 
     private void cargarCombo()
